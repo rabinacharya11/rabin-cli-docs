@@ -1,0 +1,98 @@
+# 🏁 Getting Started with Rabin CLI
+
+Get up and running with Rabin CLI (`rabin-cli`) in minutes.
+
+---
+
+## 📦 Prerequisites
+
+Before using Rabin CLI, ensure you have the following installed on your machine:
+- **Flutter SDK**: `^3.22.0` or higher (tested on Flutter 3.44+ and Dart 3.12+)
+- **Git**
+- **Supabase CLI** (optional for local database emulator testing): `brew install supabase/tap/supabase`
+
+---
+
+## 🛠️ Installation
+
+### Option 1: Quick Install Script (macOS / Linux)
+
+Run the automated installer from the repository root:
+
+```bash
+./install.sh
+```
+
+### Option 2: Global Dart Pub Activation
+
+Activate the CLI package globally into your Dart cache:
+
+```bash
+dart pub global activate --source path packages/supafire_cli --overwrite
+```
+
+> **Note:** Ensure your `~/.pub-cache/bin` (or `~/.local/bin`) is in your environment `$PATH`.
+> ```bash
+> export PATH="$PATH:$HOME/.pub-cache/bin"
+> ```
+
+Verify the installation:
+```bash
+rabin-cli --version
+# rabin-cli version: 1.0.0
+```
+
+---
+
+## 🚀 Creating Your First App
+
+Run `rabin-cli create` followed by your app name:
+
+```bash
+rabin-cli create fresh_app --org com.mycompany --desc "My next-gen Flutter app"
+```
+
+### Interactive Prompt Flow
+
+Rabin CLI will guide you through a multi-select interactive wizard:
+1. **Multilingual Support**: Select default locale (e.g. `en`) and target languages (`es`, `ne`, `hi`, `fr`), RTL support.
+2. **Theming**: Select primary brand color hex (e.g. `#4A6CF7`), heading/body Google Fonts, and toggle OLED Pitch-Black dark mode.
+3. **Authentication**: Choose providers (Google, Apple, Email/Password, Anonymous guest), enable profile table triggers.
+4. **Paywalls & Monetization**: Select provider (**RevenueCat**), product identifiers, and entitlement names (`pro`).
+5. **Analytics & Flags**: Configure **PostHog** host, autocapture, and initial event taxonomy.
+6. **Offline Sync**: Choose conflict resolution (Last-Write-Wins), sync intervals, and foreground triggers.
+
+### Non-Interactive CI Mode (`--config`)
+
+You can generate apps headlessly in CI or scripts using a `supafire.yaml` (or config YAML) file:
+
+```bash
+rabin-cli create fresh_app --config ./my_preset.yaml
+```
+
+---
+
+## 📂 Generated App Layout
+
+Once generated, your app contains:
+
+```
+lib/
+├── main.dart
+├── bootstrap.dart               # Pre-flight init (Env, Supabase, Drift, PostHog, Notifications)
+├── app/
+│   ├── app.dart
+│   ├── router/                  # GoRouter config & guards (// supafire:routes)
+│   ├── theme/                   # M3 color tokens, OLED dark theme, typography
+│   └── l10n/                    # ARB files & context extensions
+├── config/
+│   └── env.dart                 # Compile-time secrets (--dart-define)
+├── core/
+│   ├── database/                # Drift SQLite database (// supafire:tables)
+│   ├── providers/               # Riverpod global providers
+│   └── errors/                  # Typed Failures
+├── shared/
+│   └── widgets/                 # Token-driven UI components with @Preview
+└── features/                    # Feature-first modular packages
+supafire.yaml
+```

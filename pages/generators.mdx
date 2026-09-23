@@ -1,0 +1,74 @@
+# 🧱 Code & Asset Generators
+
+Rabin CLI generators automate repetitive boilerplate while keeping code strictly organized according to Clean Architecture and your design system.
+
+---
+
+## 🚀 Generator Overview
+
+| Command | Short Alias | Output Description |
+|---|---|---|
+| `rabin-cli add feature <name>` | `add f` | Four-layer feature skeleton (domain, data, application, presentation) |
+| `rabin-cli add model <name>` | `add m` | Synced Entity, DTO, Mapper, Drift Table/DAO, Repo impl, Migration & RLS |
+| `rabin-cli add screen <name>` | `add s` | Screen widget + Riverpod controller + automatic route injection |
+| `rabin-cli add component <name>` | `add c` | Token-driven reusable component with `@Preview` and widget test |
+| `rabin-cli add provider <name>` | `add p` | Typed `@riverpod` provider with codegen annotations |
+| `rabin-cli add migration <name>` | | Timestamped Supabase SQL migration + Drift schema version bump |
+| `rabin-cli add lang <code>` | | New ARB localization file & delegate registration |
+| `rabin-cli add assets` | | Scans `assets/` and generates type-safe `AppAssets` constants |
+
+---
+
+## 🔄 Synced Model Generator (`add m`)
+
+When you create a model with Rabin CLI:
+
+```bash
+rabin-cli add m habit --feature habits --fields "title:string,reminder_time:string,is_completed:bool"
+```
+
+Rabin CLI automatically generates:
+1. **Domain Entity** (`lib/features/habits/domain/entities/habit.dart`): Pure immutable Dart class with `Equatable`.
+2. **Data DTO & Mapper** (`lib/features/habits/data/models/habit_dto.dart`): `fromJson`, `toJson`, and `toEntity()`.
+3. **Drift SQLite Table & DAO** (`lib/features/habits/data/datasources/habits_table.dart`): Reactive local queries with `sync_status` tracking.
+4. **Supabase SQL Migration** (`supabase/migrations/<timestamp>_create_habits_table.sql`): Table definition with `updated_at` trigger and Row Level Security (RLS) tenant isolation.
+5. **Drift Marker Registration**: Automatically registers the new table into `core/database/app_database.dart` above `// supafire:tables`.
+
+---
+
+## 🎨 Asset Generator (`add assets`)
+
+Never use raw strings like `Image.asset('assets/images/logo.png')`. 
+
+Running:
+```bash
+rabin-cli add assets
+```
+Scans your `assets/` directory and generates `lib/core/constants/app_assets.dart`:
+
+```dart
+class AppAssets {
+  AppAssets._();
+
+  static const images = _Images();
+  static const icons = _Icons();
+  static const vectors = _Vectors();
+}
+
+class _Images {
+  const _Images();
+  final logo = 'assets/images/logo.png';
+  final onboardingHero = 'assets/images/onboarding_hero.png';
+}
+
+class _Icons {
+  const _Icons();
+  final bell = 'assets/icons/bell.svg';
+  final settings = 'assets/icons/settings.svg';
+}
+```
+
+Now you access assets safely with autocomplete and compile-time verification:
+```dart
+Image.asset(AppAssets.images.logo);
+```

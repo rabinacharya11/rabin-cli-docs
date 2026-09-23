@@ -1,0 +1,60 @@
+# 🏛️ Architecture & Layer Boundaries
+
+Rabin CLI enforces a strict **Feature-First Clean Architecture** based on Domain-Driven Design (DDD).
+
+---
+
+## 🧭 Dependency Direction
+
+The non-negotiable dependency rule is:
+
+```
+Presentation ───► Application ───► Domain ◄─── Data
+```
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Presentation Layer                                         │
+│  • Screens (StatelessWidget / ConsumerWidget)               │
+│  • Modular Widgets (Single-responsibility, dedicated files) │
+│  • Context Extensions (context.theme, context.l10n)         │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ watches state / triggers
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Application Layer                                          │
+│  • Riverpod AsyncNotifiers / Controllers                    │
+│  • Orchestration of UseCases only (no direct repo calls)    │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ executes
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Domain Layer (PURE DART ONLY)                              │
+│  • Immutable Entities (Equatable, no JSON, no Flutter)      │
+│  • Repository Interfaces (returns Future<Either<Failure, T>>)│
+│  • Single-responsibility UseCases                           │
+└──────────────────────────────▲──────────────────────────────┘
+                               │ implements contract
+┌──────────────────────────────┴──────────────────────────────┐
+│  Data Layer                                                 │
+│  • DTOs and Data Mappers (.toEntity())                      │
+│  • Drift SQLite DAOs & Tables (local cache)                 │
+│  • Supabase Remote DataSources                              │
+│  • Repository Implementations (maps exceptions -> Failures) │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🔒 The 8 Architectural Invariants
+
+`rabin-cli doctor` enforces these rules automatically:
+
+1. **Domain Purity**: Domain files must NEVER import `package:flutter/*`, `package:supabase_flutter/*`, `package:drift/*`, or `package:dio/*`.
+2. **Failure Mapping**: Data layer repositories MUST catch raw SDK exceptions (`PostgrestException`, `SocketException`, `HttpException`) and return typed `Failure` subclasses (`ServerFailure`, `NetworkFailure`, `AuthFailure`).
+3. **No Repository Calls from Views**: Presentation screens and widgets never call repositories or datasources directly. They interact exclusively through Riverpod controllers.
+4. **No Monolithic Widgets**: Monolithic screens and private helper methods like `_buildHeader()` are strictly forbidden. Every UI element is extracted into its own widget class in `presentation/widgets/` or `shared/widgets/`.
+5. **No Hardcoded Constants**: UI code must not hardcode raw hex colors, font sizes, padding numbers, or raw user-facing strings. Always use theme tokens, responsive spacing, and `context.l10n`.
+6. **Feature Isolation**: Features must never import another feature's `data/` or `presentation/` folder. Cross-feature communication must happen through `domain/` interfaces or shared providers.
+7. **Offline-First Storage**: Writes go immediately to the local Drift database with a `pending` status and into the sync Outbox queue.
+8. **App Store 5.1.1 Compliance**: Every app includes an Account screen with visible "Restore Purchases" and "Delete Account" actions.

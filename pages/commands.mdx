@@ -1,0 +1,87 @@
+# ⌨️ CLI Commands Reference
+
+Complete reference for all commands available in the `rabin-cli` executable.
+
+---
+
+## 🌟 Primary Commands
+
+### `rabin-cli create <app_name>`
+Scaffolds a new full-stack Flutter project.
+
+```bash
+rabin-cli create habit_tracker --org com.mycompany --desc "Habit tracker app"
+```
+
+| Flag | Abbreviation | Description | Default |
+|---|---|---|---|
+| `--org` | `-o` | Package / bundle identifier organization prefix | `com.example` |
+| `--desc` | `-d` | App description string | Optional |
+| `--config` | `-c` | Path to preset configuration file for non-interactive mode | Optional |
+| `--dry-run` | | Preview file generation without writing to disk | `false` |
+| `--no-install` | | Skip running `flutter pub get` and code generation | `false` |
+
+---
+
+### `rabin-cli add <type> <name>`
+Code generator dispatcher. See [Code & Asset Generators](/generators) for deep-dive options.
+
+```bash
+# Add a feature skeleton
+rabin-cli add feature notes
+
+# Add a synced model
+rabin-cli add model note --feature notes --fields "title:string,content:string,done:bool"
+
+# Add a screen with router registration
+rabin-cli add screen note_editor --feature notes
+
+# Add a shared previewable UI component
+rabin-cli add component custom_chip
+
+# Add strongly-typed asset constants from assets/
+rabin-cli add assets
+```
+
+---
+
+### `rabin-cli doctor`
+Audits system health, layer purity, missing RLS policies, and platform security.
+
+```bash
+rabin-cli doctor
+```
+
+Output highlights:
+- Development environment validation (Flutter SDK, Dart, CocoaPods, Supabase)
+- Manifest consistency check (`supafire.yaml`)
+- Domain purity inspection (ensuring zero Flutter/Supabase/Drift imports in `domain/`)
+- Android & iOS transport security policy verification
+
+---
+
+### `rabin-cli list`
+Lists all enabled modules and generated artifacts.
+
+```bash
+rabin-cli list
+```
+
+---
+
+### `rabin-cli module <add|remove> <name>`
+Toggles modules post-creation.
+
+```bash
+rabin-cli module add paywall
+rabin-cli module remove analytics
+```
+
+---
+
+### `rabin-cli upgrade`
+Checks for updates to `rabin-cli`.
+
+```bash
+rabin-cli upgrade
+```

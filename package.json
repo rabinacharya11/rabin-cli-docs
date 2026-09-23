@@ -1,0 +1,20 @@
+{
+  "name": "rabin-cli-docs",
+  "version": "1.0.0",
+  "description": "Nextra documentation site for Rabin CLI — Laravel for Flutter",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.2.15",
+    "nextra": "^2.13.4",
+    "nextra-theme-docs": "^2.13.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "overrides": {
+    "next-mdx-remote": "^6.0.0"
+  }
+}

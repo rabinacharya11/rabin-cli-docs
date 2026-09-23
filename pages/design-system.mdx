@@ -1,0 +1,99 @@
+# 🎨 Design System & 10x Performance
+
+Rabin CLI embeds a high-performance design system with Material 3 tonal generation, OLED pitch-black dark mode, context extensions, and fine-grained rebuild patterns.
+
+---
+
+## 🌓 OLED Pitch-Black & M3 Palette
+
+Rabin CLI dynamically generates tonal palettes from your brand seed color:
+
+```dart
+// Generated M3 ThemeData with OLED Pitch-Black surfaces
+final darkTheme = AppThemeGenerator.generate(
+  primaryColor: Color(0xFF4A6CF7),
+  brightness: Brightness.dark,
+  oledPitchBlack: true,
+);
+```
+
+- **True Pitch-Black (`#000000`)** background on OLED screens for battery optimization and contrast.
+- **Card Surfaces**: `surfaceContainer` with 16px radius and 15% opacity hairline borders.
+- **Button Standards**: 52px minimum touch target height, 14px radius, 0 elevation.
+
+---
+
+## ⚡ Context Extension Methods
+
+Streamline your widget code using strongly-typed context extensions:
+
+```dart
+// Theme & Colors
+final colorScheme = context.colorScheme;
+final textTheme = context.textTheme;
+
+// Screen Responsiveness
+if (context.isMobile) { ... }
+if (context.isTablet) { ... }
+
+// Navigation & Feedback
+context.push('/habits');
+context.showSnackBar('Habit marked completed!');
+
+// Typed Localization
+Text(context.l10n.welcomeUser(userName: user.name));
+```
+
+---
+
+## 🚀 10x Performance Patterns
+
+### 1. Fine-Grained `ValueNotifier` & `ValueListenableBuilder`
+Instead of rebuilding entire widget trees with `setState()`, Rabin CLI templates isolate leaf state changes:
+
+```dart
+class MySwitch extends StatefulWidget {
+  const MySwitch({super.key});
+
+  @override
+  State<MySwitch> createState() => _MySwitchState();
+}
+
+class _MySwitchState extends State<MySwitch> {
+  final _switchValue = ValueNotifier<bool>(false);
+
+  @override
+  void dispose() {
+    _switchValue.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: _switchValue,
+      builder: (context, value, child) {
+        return Switch(
+          value: value,
+          onChanged: (newValue) => _switchValue.value = newValue,
+        );
+      },
+    );
+  }
+}
+```
+
+### 2. Isolated Widget Previews (`@Preview`)
+Develop UI components in isolation with Flutter 3.38+ Widget Previewer:
+
+```dart
+import 'package:flutter/widget_previews.dart';
+
+@Preview(name: 'Primary Button - Enabled', group: 'Buttons')
+Widget previewPrimaryButton() {
+  return AppButton.primary(
+    text: 'Continue',
+    onPressed: () {},
+  );
+}
+```

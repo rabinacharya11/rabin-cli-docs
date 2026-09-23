@@ -1,0 +1,53 @@
+# ⚡ Rabin CLI — "Laravel for Flutter"
+
+> **An opinionated, full-stack Flutter framework + CLI.** Feature-first, domain-driven, local-first, Supabase-backed.
+
+---
+
+## 💡 The Problem & The Solution
+
+Every new Flutter app repeats the exact same complex plumbing:
+- Scaffolding Clean Architecture and folder structures
+- Wiring **Riverpod** state orchestration and **GoRouter** declarative routes
+- Setting up SQLite **Drift** databases and bidirectional sync with **Supabase**
+- Hand-crafting M3 Design System tokens, typography, and dark/light/OLED pitch-black themes
+- Building multi-language ARB localization and type-safe asset generators
+- Handling push notifications, monetization paywalls (**RevenueCat**), and typed analytics (**PostHog**)
+
+**Rabin CLI** (`rabin-cli`) solves this in one command. It gives you the cohesive DX of Laravel combined with Flutter's multi-platform UI power.
+
+---
+
+## ✨ Core Pillars
+
+| Pillar | How Rabin CLI Solves It |
+|---|---|
+| **⚡ Instant App Scaffolding** | `rabin-cli create <app>` asks your app requirements, configures modules, and builds a compiling production app in **under 10 minutes**. |
+| **🔄 1-Command Synced Models** | `rabin-cli add m habit --feature habits` generates the Entity, DTO, Mapper, Drift table, DAO, Repo, Supabase Migration, and RLS policies all at once. |
+| **📡 True Offline-First Sync** | Drift SQLite local storage + Outbox queue with exponential backoff + Last-Write-Wins (LWW) conflict resolution and soft deletes. |
+| **🎨 Enterprise Design System** | Token-driven theme engine (M3 seed + OLED pitch-black), `@Preview` widget annotations, context extensions, and fine-grained `ValueNotifier` performance patterns. |
+| **🩺 Continuous Hygiene & Security** | `rabin-cli doctor` automatically audits layer boundaries, missing RLS policies, unencrypted token storage, and App Store 5.1.1 account deletion rules. |
+
+---
+
+## 🚀 Quick Demo
+
+```bash
+# 1. Install globally
+dart pub global activate --source path packages/supafire_cli --overwrite
+
+# 2. Create a full-stack production Flutter app
+rabin-cli create my_habits_app --org com.mycompany
+
+# 3. Add a feature skeleton with all 4 architectural layers
+rabin-cli add feature habits
+
+# 4. Add a synced data model with SQLite + Supabase + RLS
+rabin-cli add model habit --feature habits --fields "title:string,is_completed:bool"
+
+# 5. Auto-generate typed asset constants from assets/
+rabin-cli add assets
+
+# 6. Audit architectural purity & security
+rabin-cli doctor
+```

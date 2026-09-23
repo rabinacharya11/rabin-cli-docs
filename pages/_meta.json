@@ -1,0 +1,10 @@
+{
+  "index": "Overview & Vision",
+  "getting-started": "Getting Started",
+  "architecture": "Architecture & Layers",
+  "commands": "CLI Commands Reference",
+  "generators": "Code & Asset Generators",
+  "sync-engine": "Offline-First Sync Engine",
+  "design-system": "Design System & Performance",
+  "doctor-and-security": "Doctor & Security Audits"
+}

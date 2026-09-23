@@ -1,0 +1,61 @@
+# 📡 Offline-First Sync Engine
+
+Rabin CLI features a bulletproof, local-first synchronization engine designed specifically for Flutter apps backed by SQLite (Drift) and Supabase Postgres.
+
+---
+
+## ⚡ The Offline-First Write Path
+
+In Rabin CLI apps, UI operations NEVER wait for a roundtrip network request. Every write is instantaneous:
+
+```
+[User Action in UI]
+       │
+       ▼
+[Riverpod Controller]
+       │
+       ▼
+[UseCase]
+       │
+       ▼
+[Repository Implementation]
+       │
+       ├──► 1. Save row to Drift SQLite (marked sync_status: 'pending')
+       │
+       └──► 2. Enqueue operation to local Outbox Table
+       │
+       ▼
+[Instant UI Update via Drift Reactive Stream]
+```
+
+---
+
+## 🔄 The Sync Lifecycle
+
+The background sync engine runs automatically when:
+- Internet connectivity is restored
+- The application enters the foreground
+- A periodic background task triggers
+- A manual pull-to-refresh is executed
+
+### 1. Outbox Push (Client ➔ Server)
+1. Retrieves pending outbox items sorted by timestamp.
+2. Batches records and pushes to Supabase with unique idempotency keys.
+3. On HTTP 200/201: Marks the Drift SQLite row as `synced` and deletes the outbox entry.
+4. On network failure: Retries with exponential backoff and jitter.
+
+### 2. Cursor-Based Incremental Pull (Server ➔ Client)
+1. Fetches server changes where `updated_at > last_sync_cursor`.
+2. Upserts incoming rows into Drift SQLite inside a single atomic database transaction.
+3. Applies soft-delete tombstones (`deleted_at != null`).
+4. Updates the local table cursor to the highest `updated_at` received.
+
+---
+
+## ⚔️ Conflict Resolution (Last-Write-Wins)
+
+Rabin CLI implements **Last-Write-Wins (LWW)** conflict resolution based on microsecond-accurate server `updated_at` timestamps:
+
+- If a local pending change has a newer timestamp than the incoming server change, the local change is preserved and re-pushed.
+- If the server has a newer timestamp, the server state replaces the local row.
+- Deleted records preserve a tombstone (`deleted_at` timestamp) to prevent resurrection across devices.

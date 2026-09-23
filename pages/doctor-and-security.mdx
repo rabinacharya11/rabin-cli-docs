@@ -1,0 +1,54 @@
+# 🩺 Doctor & Security Audits
+
+Rabin CLI includes a built-in doctor to ensure your codebase stays pristine, secure, and ready for production App Store deployment.
+
+---
+
+## 🩺 Running `rabin-cli doctor`
+
+Execute anytime to run a full diagnostic:
+
+```bash
+rabin-cli doctor
+```
+
+```
+  ____       _     _             ____ _     ___ 
+ |  _ \ __ _| |__ (_)_ __       / ___| |   |_ _|
+ | |_) / _` | '_ \| | '_ \ ____| |   | |    | | 
+ |  _ < (_| | |_) | | | | |____| |___| |___ | | 
+ |_| \_\__,_|_.__/|_|_| |_|     \____|_____|___|
+                                                
+        🚀 Laravel for Flutter
+
+==> Rabin CLI Doctor — Health & Architecture Inspection
+• Checking developer tooling environment...
+  [PASS] Flutter SDK installed
+  [PASS] Supabase CLI installed
+  [PASS] supafire.yaml manifest found
+• Checking Clean Architecture layer boundaries (Presentation -> Application -> Domain <- Data)...
+  [PASS] All domain layers are pure Dart (0 violations)
+• Checking security policies...
+  [PASS] Android transport security is compliant
+  [PASS] All Supabase database tables have Row Level Security (RLS) enabled
+  [PASS] Auth token storage utilizes EncryptedSharedPreferences / Keychain
+  [PASS] App Store Guideline 5.1.1 compliant account deletion flow present
+
+==> Doctor Summary
+Checks: 7 passed, 0 warnings, 0 failed
+
+🎉 System is healthy and compliant with Clean Architecture!
+```
+
+---
+
+## 🛡️ Security Check Matrix
+
+| Check | Severity | Description |
+|---|---|---|
+| **Domain Purity** | `HIGH` | Verifies domain layer does not import Flutter, Supabase, Drift, or Dio. |
+| **Row Level Security (RLS)** | `CRITICAL` | Asserts every generated table has strict tenant isolation policies (`auth.uid() = user_id`). |
+| **Cleartext HTTP Traffic** | `HIGH` | Ensures `android:usesCleartextTraffic="false"` and iOS App Transport Security are active. |
+| **Secure Token Storage** | `CRITICAL` | Asserts tokens are saved via Keychain / EncryptedSharedPreferences, NEVER plain SharedPreferences. |
+| **Service Role Secrets** | `CRITICAL` | Scans client files to guarantee zero client-side leaks of Supabase `service_role` keys. |
+| **App Store 5.1.1 Deletion** | `HIGH` | Confirms Account screen includes irreversible user data deletion triggering backend cleanup. |
