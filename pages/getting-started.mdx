@@ -6,47 +6,16 @@ Get up and running with Rabin CLI (`rabin-cli`) in minutes.
 
 ## 📦 Prerequisites
 
-Before using Rabin CLI, ensure you have the following installed on your machine:
+Before using Rabin CLI, ensure you have the following installed on your development machine:
 - **Flutter SDK**: `^3.22.0` or higher (tested on Flutter 3.44+ and Dart 3.12+)
 - **Git**
 - **Supabase CLI** (optional for local database emulator testing): `brew install supabase/tap/supabase`
 
 ---
 
-## 🛠️ Installation
-
-### Option 1: Quick Install Script (macOS / Linux)
-
-Run the automated installer from the repository root:
-
-```bash
-./install.sh
-```
-
-### Option 2: Global Dart Pub Activation
-
-Activate the CLI package globally into your Dart cache:
-
-```bash
-dart pub global activate --source path packages/supafire_cli --overwrite
-```
-
-> **Note:** Ensure your `~/.pub-cache/bin` (or `~/.local/bin`) is in your environment `$PATH`.
-> ```bash
-> export PATH="$PATH:$HOME/.pub-cache/bin"
-> ```
-
-Verify the installation:
-```bash
-rabin-cli --version
-# rabin-cli version: 1.0.0
-```
-
----
-
 ## 🚀 Creating Your First App
 
-Run `rabin-cli create` followed by your app name:
+Once Rabin CLI is active in your terminal, run `rabin-cli create` followed by your app name:
 
 ```bash
 rabin-cli create fresh_app --org com.mycompany --desc "My next-gen Flutter app"
@@ -96,3 +65,14 @@ lib/
 └── features/                    # Feature-first modular packages
 supafire.yaml
 ```
+
+---
+
+## ⚡ Instant Code Reloading
+
+During active development on the CLI itself, you can instantly refresh the global binary from anywhere using:
+
+```bash
+rabin-cli reload
+```
+*(or `rabincli reload`)*

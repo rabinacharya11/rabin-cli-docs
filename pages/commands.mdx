@@ -23,24 +23,82 @@ rabin-cli create habit_tracker --org com.mycompany --desc "Habit tracker app"
 
 ---
 
-### `rabin-cli add <type> <name>`
-Code generator dispatcher. See [Code & Asset Generators](/generators) for deep-dive options.
+### `rabincli assets`
+Auto-scans `assets/` subfolders (`images/`, `icons/`, `vectors/`, `fonts/`), ensures directories exist, registers paths in `pubspec.yaml`, and compiles strongly-typed `Assets` constants at `lib/core/constants/app_assets.dart`.
+
+```bash
+# Scan and compile assets
+rabincli assets
+
+# Also trigger fluttergen if installed
+rabincli assets --flutter-gen
+```
+
+---
+
+### `rabincli feature <name>` (Alias: `f`)
+Generates the complete Clean Architecture directory structure (`domain/`, `data/`, `application/`, `presentation/`), creates initial screens and controllers, injects route into `routes.dart`, and registers the feature in `supafire.yaml`.
+
+```bash
+rabincli feature habits
+# Or:
+rabincli add feature habits
+```
+
+---
+
+### `rabincli add <type> <name>`
+Code generator dispatcher for specific Clean Architecture elements. See [Code & Asset Generators](/generators) for deep-dive options.
 
 ```bash
 # Add a feature skeleton
-rabin-cli add feature notes
+rabincli add feature notes
 
 # Add a synced model
-rabin-cli add model note --feature notes --fields "title:string,content:string,done:bool"
+rabincli add model note --feature notes --fields "title:string,content:string,done:bool"
 
 # Add a screen with router registration
-rabin-cli add screen note_editor --feature notes
+rabincli add screen note_editor --feature notes
 
 # Add a shared previewable UI component
-rabin-cli add component custom_chip
+rabincli add component custom_chip
 
 # Add strongly-typed asset constants from assets/
-rabin-cli add assets
+rabincli assets
+```
+
+---
+
+### `rabincli supabase <subcommand>` (Alias: `sb`)
+Laravel-style Supabase backend management suite. See [Supabase & Backend CLI](/supabase) for comprehensive documentation.
+
+```bash
+# Prevent Supabase 7-day auto-pause on Free Tier (GitHub Actions ping)
+rabincli supabase keep-alive
+
+# Run pending SQL migrations
+rabincli supabase migrate
+
+# Rollback last migration batch
+rabincli supabase rollback
+
+# Create new timestamped SQL migration
+rabincli supabase migration add_notes_table
+
+# Create database-aware Edge Function
+rabin-cli supabase edge process_order
+
+# Setup auth triggers & profile sync
+rabin-cli supabase auth setup
+
+# Create storage bucket with RLS policies
+rabin-cli supabase storage bucket receipts
+
+# Scaffold responsive HTML auth email template
+rabin-cli supabase email template magic_link
+
+# Inspect Supabase connectivity and migration status
+rabin-cli supabase status
 ```
 
 ---

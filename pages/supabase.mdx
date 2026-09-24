@@ -1,0 +1,211 @@
+# ⚡ Supabase & Backend CLI
+
+Rabin CLI provides a **Laravel Artisan-style** developer experience for managing your Supabase backend directly from the terminal. 
+
+Manage database migrations, rollbacks, database-aware Edge Functions, authentication triggers, storage buckets, and email templates without leaving your workflow.
+
+---
+
+## 🌟 Supabase Command Hierarchy
+
+```bash
+rabin-cli supabase <subcommand>
+# Or using the shorthand alias:
+rabin-cli sb <subcommand>
+```
+
+| Subcommand | Alias | Description |
+|---|---|---|
+| `migrate` | `m` | Run all pending SQL migrations in chronological order |
+| `rollback` | `r` | Revert the last batch of database migrations using `DOWN` sections |
+| `migration <name>` | `new:migration` | Create a timestamped SQL migration with `UP` and `DOWN` blocks |
+| `edge <name>` | `fn`, `function` | Scaffold a database-aware Deno TypeScript Edge Function |
+| `keep-alive` | `keepalive`, `ping` | Prevent Supabase 7-day inactivity pause via GitHub Actions |
+| `auth setup` | | Generate migration for automatic `auth.users` to `public.profiles` sync trigger |
+| `storage bucket <name>` | | Generate migration to create a storage bucket with locked-down RLS |
+| `email template <name>` | | Scaffold a branded, mobile-responsive HTML auth email template |
+| `status` | `doctor`, `info` | Inspect Supabase credentials, connectivity, and migration status |
+
+---
+
+## 🚀 Migrations & Rollbacks (Laravel-Style)
+
+### Running Migrations
+
+Apply pending migrations from `supabase/migrations/`:
+
+```bash
+# Apply pending migrations
+rabin-cli supabase migrate
+
+# Dry-run simulation (preview what will execute)
+rabin-cli supabase migrate --dry-run
+```
+
+Applied migrations are automatically recorded in `supabase/.applied_migrations` and batched in `.applied_migrations_log`.
+
+### Rolling Back Migrations
+
+Just like `php artisan migrate:rollback`:
+
+```bash
+# Roll back the most recent migration batch
+rabin-cli supabase rollback
+
+# Roll back the last 2 batches
+rabin-cli supabase rollback --steps 2
+
+# Dry-run rollback simulation
+rabin-cli supabase rollback --dry-run
+```
+
+### Creating Migrations
+
+```bash
+rabin-cli supabase migration add_bio_to_profiles
+```
+
+This creates a timestamped migration in `supabase/migrations/<timestamp>_add_bio_to_profiles.sql` with structured sections:
+
+```sql
+-- ============================================================================
+-- Migration: add_bio_to_profiles
+-- Timestamp: 20260924003000
+-- ============================================================================
+
+-- UP
+alter table public.profiles add column bio text;
+
+-- DOWN
+alter table public.profiles drop column if exists bio;
+```
+
+---
+
+## ⚡ Database-Aware Edge Functions
+
+Generate production-ready Deno TypeScript functions in `supabase/functions/<name>/index.ts`:
+
+```bash
+rabin-cli supabase edge process_payment
+```
+
+Generated functions come equipped with:
+- Standard CORS preflight headers for mobile and web clients
+- Supabase Admin Client initialized with environment service role key
+- Authorization header verification for authenticated users
+- Structured JSON response and error handling
+
+```typescript
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+  // Authenticate user token
+  const authHeader = req.headers.get("Authorization");
+  // Function business logic...
+});
+```
+
+Deploy your function to Supabase:
+```bash
+supabase functions deploy process-payment
+```
+
+---
+
+## 🔐 Auth & Automatic Profile Triggers
+
+Set up database triggers that automatically create a `public.profiles` row when a user registers:
+
+```bash
+rabin-cli supabase auth setup
+```
+
+This generates a migration that:
+1. Creates the `public.profiles` table linked to `auth.users(id)` with cascade deletion.
+2. Applies Row-Level Security (RLS) policies allowing users to view and update only their own profile.
+3. Attaches an `on_auth_user_created` trigger function to `auth.users` on `INSERT`.
+
+---
+
+## 📦 Storage Buckets & Policies
+
+Create and secure Supabase Storage buckets with fine-grained RLS:
+
+```bash
+rabin-cli supabase storage bucket avatars --public --max-size 5 --mime-types "image/png,image/jpeg,image/webp"
+```
+
+Generates a migration with:
+- Bucket insertion into `storage.buckets`
+- Max file size limits and MIME type constraints
+- RLS policy allowing read access (public or authenticated)
+- RLS policy allowing authenticated uploads
+- RLS policy ensuring users can update and delete only their own objects
+
+---
+
+## ✉️ Responsive Email Templates
+
+Generate customized, mobile-optimized HTML email templates for your brand:
+
+```bash
+rabin-cli supabase email template confirm_signup
+rabin-cli supabase email template reset_password
+```
+
+Templates are placed in `supabase/email-templates/` and feature dark-mode styling, prominent confirmation action buttons, and token code boxes compatible with Supabase Auth template variables (`{{ .ConfirmationURL }}`, `{{ .Token }}`).
+
+---
+
+## 🩺 Checking Supabase Status
+
+```bash
+rabin-cli supabase status
+```
+
+Displays:
+- `.env` validation (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`)
+- Total, applied, and pending migration counts
+- List of active Edge Functions
+
+---
+
+## 🛡️ Supabase Free Tier Keep-Alive (Prevent Inactivity Pause)
+
+On the Supabase Free Tier, if your project receives no external HTTP/REST traffic for 7 days, Supabase puts the entire database container to sleep. Internal schedulers live inside that same container and shut down too, making it impossible for internal cron jobs to self-wake.
+
+Rabin CLI provides an automated **External Ping** solution utilizing GitHub Actions:
+
+```bash
+rabincli supabase keep-alive
+```
+
+### What This Generates:
+1. **GitHub Actions Workflow** (`.github/workflows/supabase_keep_alive.yml`): Runs on a schedule every 3 days at 00:00 UTC (`0 0 */3 * *`) and supports manual trigger (`workflow_dispatch`).
+2. **Cron Health Table Migration** (`supabase/migrations/<timestamp>_create_cron_health_table.sql`): Creates a lightweight `public.cron_health` table with Row Level Security (RLS) allowing anonymous keep-alive inserts.
+
+### How to Activate on GitHub:
+1. Push your project to GitHub.
+2. In your repository, navigate to **Settings** ➔ **Secrets and variables** ➔ **Actions**.
+3. Add two repository secrets:
+   - `SUPABASE_URL`: e.g. `https://your-project.supabase.co`
+   - `SUPABASE_ANON_KEY`: Your Supabase anonymous public key.
+4. Run `rabincli supabase migrate` to ensure the `cron_health` table is deployed.
+
+The workflow will write a keep-alive ping row every 3 days, keeping your Supabase database container perpetually awake and active!
+

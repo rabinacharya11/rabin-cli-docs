@@ -33,21 +33,18 @@ Every new Flutter app repeats the exact same complex plumbing:
 ## 🚀 Quick Demo
 
 ```bash
-# 1. Install globally
-dart pub global activate --source path packages/supafire_cli --overwrite
-
-# 2. Create a full-stack production Flutter app
+# 1. Create a full-stack production Flutter app
 rabin-cli create my_habits_app --org com.mycompany
 
-# 3. Add a feature skeleton with all 4 architectural layers
+# 2. Add a feature skeleton with all 4 architectural layers
 rabin-cli add feature habits
 
-# 4. Add a synced data model with SQLite + Supabase + RLS
+# 3. Add a synced data model with SQLite + Supabase + RLS
 rabin-cli add model habit --feature habits --fields "title:string,is_completed:bool"
 
-# 5. Auto-generate typed asset constants from assets/
+# 4. Auto-generate typed asset constants from assets/
 rabin-cli add assets
 
-# 6. Audit architectural purity & security
+# 5. Audit architectural purity & security
 rabin-cli doctor
 ```

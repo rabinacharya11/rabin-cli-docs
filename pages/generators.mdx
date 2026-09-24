@@ -8,14 +8,14 @@ Rabin CLI generators automate repetitive boilerplate while keeping code strictly
 
 | Command | Short Alias | Output Description |
 |---|---|---|
-| `rabin-cli add feature <name>` | `add f` | Four-layer feature skeleton (domain, data, application, presentation) |
-| `rabin-cli add model <name>` | `add m` | Synced Entity, DTO, Mapper, Drift Table/DAO, Repo impl, Migration & RLS |
-| `rabin-cli add screen <name>` | `add s` | Screen widget + Riverpod controller + automatic route injection |
-| `rabin-cli add component <name>` | `add c` | Token-driven reusable component with `@Preview` and widget test |
-| `rabin-cli add provider <name>` | `add p` | Typed `@riverpod` provider with codegen annotations |
-| `rabin-cli add migration <name>` | | Timestamped Supabase SQL migration + Drift schema version bump |
-| `rabin-cli add lang <code>` | | New ARB localization file & delegate registration |
-| `rabin-cli add assets` | | Scans `assets/` and generates type-safe `AppAssets` constants |
+| `rabincli assets` | `assets` | Scans `assets/` and generates type-safe `Assets` constants class |
+| `rabincli feature <name>` | `feature`, `f` | Complete Clean Architecture feature (domain, data, application, presentation, screens, controller & route) |
+| `rabincli add model <name>` | `add m` | Synced Entity, DTO, Mapper, Drift Table/DAO, Repo impl, Migration & RLS |
+| `rabincli add screen <name>` | `add s` | Screen widget + Riverpod controller + automatic route injection |
+| `rabincli add component <name>` | `add c` | Token-driven reusable component with `@Preview` and widget test |
+| `rabincli add provider <name>` | `add p` | Typed `@riverpod` provider with codegen annotations |
+| `rabincli add migration <name>` | | Timestamped Supabase SQL migration + Drift schema version bump |
+| `rabincli add lang <code>` | | New ARB localization file & delegate registration |
 
 ---
 
@@ -24,7 +24,7 @@ Rabin CLI generators automate repetitive boilerplate while keeping code strictly
 When you create a model with Rabin CLI:
 
 ```bash
-rabin-cli add m habit --feature habits --fields "title:string,reminder_time:string,is_completed:bool"
+rabincli add m habit --feature habits --fields "title:string,reminder_time:string,is_completed:bool"
 ```
 
 Rabin CLI automatically generates:
@@ -36,39 +36,58 @@ Rabin CLI automatically generates:
 
 ---
 
-## 🎨 Asset Generator (`add assets`)
+## 🎨 Strongly-Typed Asset Generator (`rabincli assets`)
 
-Never use raw strings like `Image.asset('assets/images/logo.png')`. 
+Never use raw fragile strings like `Image.asset('assets/images/logo.png')` or `SvgPicture.asset('assets/icons/bell.svg')`. 
 
-Running:
+Following the best practices in [You are using assets in flutter app the wrong way](https://blog.rabinacharya.info.np/you-are-using-assets-in-flutter-app-the-wrong-way), Rabin CLI organizes your assets into semantic folders (`assets/images`, `assets/icons`, `assets/vectors`, `assets/fonts`), automatically declares them in `pubspec.yaml`, and generates strongly-typed accessor classes:
+
 ```bash
-rabin-cli add assets
+# Scan assets and compile typed constants
+rabincli assets
+
+# Or if you also use fluttergen:
+rabincli assets --flutter-gen
 ```
-Scans your `assets/` directory and generates `lib/core/constants/app_assets.dart`:
+
+### Generated Code (`lib/core/constants/app_assets.dart`)
 
 ```dart
-class AppAssets {
-  AppAssets._();
-
-  static const images = _Images();
-  static const icons = _Icons();
-  static const vectors = _Vectors();
+abstract final class Assets {
+  static const icons = _IconsAssets();
+  static const images = _ImagesAssets();
+  static const vectors = _VectorsAssets();
 }
 
-class _Images {
-  const _Images();
-  final logo = 'assets/images/logo.png';
-  final onboardingHero = 'assets/images/onboarding_hero.png';
+class _IconsAssets {
+  const _IconsAssets();
+  final notificationIcon = const SvgAsset('assets/icons/notification_icon.svg');
 }
 
-class _Icons {
-  const _Icons();
-  final bell = 'assets/icons/bell.svg';
-  final settings = 'assets/icons/settings.svg';
+class _ImagesAssets {
+  const _ImagesAssets();
+  final userAvatar = const ImageAsset('assets/images/user_avatar.png');
 }
 ```
 
-Now you access assets safely with autocomplete and compile-time verification:
+### Type-Safe Usage in Widgets
+
 ```dart
-Image.asset(AppAssets.images.logo);
+// Render an SVG with autocomplete, size, and color tinting
+Assets.icons.notificationIcon.svg(
+  width: 24, 
+  height: 24, 
+  color: context.colors.primary,
+)
+
+// Render an Image with fit and dimensions
+Assets.images.userAvatar.image(
+  width: 48, 
+  height: 48, 
+  fit: BoxFit.cover,
+)
+
+// Access raw path whenever required
+final path = Assets.icons.notificationIcon.path;
 ```
+

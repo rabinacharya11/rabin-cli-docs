@@ -3,6 +3,7 @@
   "getting-started": "Getting Started",
   "architecture": "Architecture & Layers",
   "commands": "CLI Commands Reference",
+  "supabase": "Supabase & Backend CLI",
   "generators": "Code & Asset Generators",
   "sync-engine": "Offline-First Sync Engine",
   "design-system": "Design System & Performance",
